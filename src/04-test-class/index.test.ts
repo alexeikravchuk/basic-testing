@@ -1,3 +1,4 @@
+import lodash from 'lodash';
 import {
   InsufficientFundsError,
   SynchronizationFailedError,
@@ -6,11 +7,12 @@ import {
 } from '.';
 
 describe('BankAccount', () => {
-  const bankAccaunt = getBankAccount(100);
+  const initBalance = 100;
+  const bankAccaunt = getBankAccount(initBalance);
   const secondAccount = getBankAccount(0);
 
   test('should create account with initial balance', () => {
-    expect(bankAccaunt.getBalance()).toBe(100);
+    expect(bankAccaunt.getBalance()).toBe(initBalance);
   });
 
   test('should throw InsufficientFundsError error when withdrawing more than balance', () => {
@@ -55,7 +57,9 @@ describe('BankAccount', () => {
   test('should transfer money', () => {
     const balance = bankAccaunt.getBalance();
     const secondAccountBalance = secondAccount.getBalance();
+
     const transferAmound = (Math.random() * balance) >> 0;
+
     const newBalance = balance - transferAmound;
     const newSecondAccountBalance = secondAccountBalance + transferAmound;
 
@@ -66,25 +70,31 @@ describe('BankAccount', () => {
   });
 
   test('fetchBalance should return number in case if request did not failed', async () => {
-    bankAccaunt.fetchBalance().then((balance) => {
-      expect(typeof balance).toBe('number');
-    });
+    const spy = jest.spyOn(lodash, 'random');
+
+    spy.mockReturnValue(initBalance).mockReturnValueOnce(1);
+
+    const mockedType = typeof initBalance;
+
+    const balance = await bankAccaunt.fetchBalance();
+    expect(typeof balance).toBe(mockedType);
   });
 
   test('should set new balance if fetchBalance returned number', async () => {
-    const balance = await bankAccaunt.fetchBalance();
-    if (balance !== null) {
-      bankAccaunt.synchronizeBalance();
-      expect(bankAccaunt.getBalance()).toBe(balance);
-    }
+    const spy = jest.spyOn(bankAccaunt, 'fetchBalance');
+    spy.mockResolvedValueOnce(initBalance);
+
+    await bankAccaunt.synchronizeBalance();
+
+    expect(bankAccaunt.getBalance()).toBe(initBalance);
   });
 
   test('should throw SynchronizationFailedError if fetchBalance returned null', async () => {
-    const balance = await bankAccaunt.fetchBalance();
-    if (balance === null) {
-      expect(() => bankAccaunt.synchronizeBalance()).toThrow(
-        SynchronizationFailedError,
-      );
-    }
+    const spy = jest.spyOn(bankAccaunt, 'fetchBalance');
+    spy.mockResolvedValueOnce(null);
+
+    await expect(() => bankAccaunt.synchronizeBalance()).rejects.toThrow(
+      SynchronizationFailedError,
+    );
   });
 });
