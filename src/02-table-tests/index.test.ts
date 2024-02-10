@@ -22,7 +22,11 @@ const testCases = [
 ];
 
 describe('simpleCalculator', () => {
-  test.each(testCases)('should return %p', ({ a, b, action, expected }) => {
-    expect(simpleCalculator({ a, b, action })).toBe(expected);
-  });
+  test.each(testCases)(
+    'should return $expected',
+    ({ a, b, action, expected }) => {
+      const result = simpleCalculator({ a, b, action });
+      expect(result).toBe(expected);
+    },
+  );
 });
