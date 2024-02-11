@@ -3,7 +3,7 @@ import { throttledGetDataFromApi } from './index';
 
 jest.mock('lodash', () => {
   return {
-    throttle: jest.fn((fn: Function) => fn),
+    throttle: jest.fn((fn: (...args: unknown[]) => unknown) => fn),
   };
 });
 
