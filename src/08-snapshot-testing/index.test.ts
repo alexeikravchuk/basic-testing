@@ -24,20 +24,6 @@ describe('generateLinkedList', () => {
   test('should generate linked list from values 2', () => {
     const elements = ['a', 'b', 'c'];
     const linkedList = generateLinkedList(elements);
-    expect(linkedList).toMatchInlineSnapshot(`
-      {
-        "next": {
-          "next": {
-            "next": {
-              "next": null,
-              "value": null,
-            },
-            "value": "c",
-          },
-          "value": "b",
-        },
-        "value": "a",
-      }
-    `);
+    expect(linkedList).toMatchSnapshot();
   });
 });
